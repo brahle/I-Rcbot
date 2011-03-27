@@ -57,6 +57,8 @@ class IrcBot(object):
     By default, only PingAction has already been added to it, so it won't quit
     too soon.
     """
+    DEFAULT_ACTIONS = []
+
     def __init__(self, *args, **kwargs):
         """Initializes the IrcBot. The following arguments are required:
             * host - the server you want to connect to
@@ -77,9 +79,10 @@ class IrcBot(object):
         self.socket = MySocket(self.host, self.port)
         self._actions = []
         self.add_action(PingAction(self))
+        for action in self.DEFAULT_ACTIONS:
+            self.add_action(action(self))
         self._reading_thread = ReadingThread(self)
         self._reading_thread.start()
-
         self.connect()
 
     def send_message(self, where, what):

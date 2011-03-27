@@ -93,14 +93,29 @@ class EchoAction(IrcAction):
 class KeywordAction(IrcAction):
     """Extend this class if you want to add a command to the bot. It is just a
     utility class as, it only implements a method to check if the received
-    message starts with self.KEYWORD.
+    message starts with self.KEYWORD. The deafult do method will save you some
+    work by automatically saving the sender, message and channel data. 
     """
     KEYWORD = None      # put a keyword string, like '!start' when you extend it
 
     def check(self, line):
-        """Checks if the message starts with self.KEYWORD"""
+        """Checks if the message starts with self.KEYWORD
+        """
         if not self._is_privmsg(line):
             return False
-        message = self._get_message(line)
-        return message.startswith(self.KEYWORD)
+        message = self._get_message(line).split()
+        return message[0] == self.KEYWORD
+
+    def do(self, line):
+        """Saves message, sender, and channel data and calls _do() method.
+        """
+        self.message = self._get_message(line)[len(self.KEYWORD)+1:].strip()
+        self.sender = self._get_sender(line)
+        self.channel = self._get_channel(line)
+        self._do()
+
+    def _do(self):
+        """It is called at the end of do() method. 
+        """
+        pass
 
