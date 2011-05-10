@@ -10,19 +10,26 @@ class Spoiler(models.Model):
 
 
 class SpoilAction(KeywordAction):
+    AUTHOR = 'brahle'
     KEYWORD = '!spoil'
+    DESCRIPTION = """Use this to spoil a message. Usage: /msg {name} !spoil \
+text-to-spoil"""
     def _do(self):
         spoiler = Spoiler(author=self.sender, text=self.message)
         spoiler.save()
-        notification = '{0} created spoiler {1}!'.format(self.sender, spoiler.id)
+        msg = 'User {0} created spoiler {1}!'
+        notification = msg.format(self.sender, spoiler.id)
         if self.channel not in self.bot.channels:
             self.bot.send_message(self.channel, notification)
         for channel in self.bot.channels:
             self.bot.send_message(channel, notification)
-        
+
 
 class UnspoilAction(KeywordAction):
+    AUTHOR = 'brahle'
     KEYWORD = '!unspoil'
+    DESCRIPTION = """Unspoils the message hidden behind the given id. Usage: \
+!unspoil <id>"""
     def _do(self):
         try:
             spoiler_id = int(self.message)
@@ -38,13 +45,5 @@ class UnspoilAction(KeywordAction):
         self.bot.send_message(self.sender, spoiler.text)
 
 
-class SpoilHelpAction(KeywordAction):
-    KEYWORD = '!spoil-help'
-    def _do(self):
-        help_string = '{0} currently supports two options: "/msg {0} {1} text to spoil" and "{2} <id>"'
-        response = help_string.format(self.bot.nick, SpoilAction.KEYWORD,
-                                      UnspoilAction.KEYWORD)
-        self.bot.send_message(self.channel, response)
-
 class SpoilerBot(IrcBot):
-    DEFAULT_ACTIONS = [SpoilAction, UnspoilAction, SpoilHelpAction]
+    DEFAULT_ACTIONS = [SpoilAction, UnspoilAction]

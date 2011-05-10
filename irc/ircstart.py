@@ -23,10 +23,10 @@ import random
 
 class IrcMiddleware(object):
     """This sucks big time! If you want to start the bot, after you start the
-    server, you need to visit the website. 
+    server, you need to visit the website.
     """
     def __init__(self):
-        """Creates the IrcBot and reports that the bot is not used. 
+        """Creates the IrcBot and reports that the bot is not used.
         """
         try:
             self.bots

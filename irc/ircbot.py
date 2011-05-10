@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from irc.actions import IrcAction, PingAction
+from irc.actions import IrcAction, PingAction, HelpAction
 from irc.mysocket import MySocket
 
 import random
@@ -54,10 +54,11 @@ class IrcBot(object):
     two options:
         1) extend this class.
         2) instance it and add your own actions to it.
-    By default, only PingAction has already been added to it, so it won't quit
-    too soon.
+    By default, only PingAction and HelpAction have already been added
+    to it, so it won't quit too soon and some basic help is shown.
     """
     DEFAULT_ACTIONS = []
+    HELP_ACTION = HelpAction
 
     def __init__(self, *args, **kwargs):
         """Initializes the IrcBot. The following arguments are required:
@@ -79,6 +80,7 @@ class IrcBot(object):
         self.socket = MySocket(self.host, self.port)
         self._actions = []
         self.add_action(PingAction(self))
+        self.add_action(self.HELP_ACTION(self))
         for action in self.DEFAULT_ACTIONS:
             self.add_action(action(self))
         self._reading_thread = ReadingThread(self)
@@ -118,12 +120,17 @@ class IrcBot(object):
                     action.do(line)
 
     def add_action(self, action):
-        """Adds an action to the action list. action should extend IrcAction.
+        """Adds an action to the action list. Action should extend IrcAction.
         """
         if not isinstance(action, IrcAction):
             raise IrcBotException('Expected IrcAction, but got ' +
                                   action.__class__.__name__)
         self._actions.append(action)
+
+    def get_help(self):
+        """Returns basic information about the bot."""
+        msg = "My nick is {0} and my master is {1}. I operate on: {2}"
+        return msg.format(self.nick, self.owner, self.channels)
 
 
 def main():
